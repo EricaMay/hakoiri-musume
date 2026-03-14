@@ -1,0 +1,95 @@
+[
+  {
+    "id": "puzzle_001",
+    "name": "はじめの一歩",
+    "difficulty": "beginner",
+    "board": { "width": 4, "height": 5 },
+    "exit": { "x": 1, "y": 5, "width": 2, "height": 1 },
+    "blocks": [
+      { "id": "target", "type": "2x2", "x": 0, "y": 0, "isTarget": true },
+      { "id": "a", "type": "2x1", "x": 0, "y": 2 },
+      { "id": "b", "type": "2x1", "x": 2, "y": 2 },
+      { "id": "c", "type": "1x1", "x": 0, "y": 3 },
+      { "id": "d", "type": "1x1", "x": 1, "y": 3 },
+      { "id": "e", "type": "1x1", "x": 2, "y": 3 },
+      { "id": "f", "type": "1x1", "x": 3, "y": 3 }
+    ],
+    "_minMoves": 15
+  },
+  {
+    "id": "puzzle_002",
+    "name": "壁をかわせ",
+    "difficulty": "beginner",
+    "board": { "width": 4, "height": 5 },
+    "exit": { "x": 1, "y": 5, "width": 2, "height": 1 },
+    "blocks": [
+      { "id": "target", "type": "2x2", "x": 0, "y": 0, "isTarget": true },
+      { "id": "a1", "type": "1x2", "x": 2, "y": 0 },
+      { "id": "a2", "type": "1x2", "x": 3, "y": 0 },
+      { "id": "b1", "type": "2x1", "x": 0, "y": 2 },
+      { "id": "c1", "type": "1x1", "x": 2, "y": 2 },
+      { "id": "c2", "type": "1x1", "x": 3, "y": 2 },
+      { "id": "b2", "type": "2x1", "x": 0, "y": 3 },
+      { "id": "c3", "type": "1x1", "x": 2, "y": 3 },
+      { "id": "c4", "type": "1x1", "x": 3, "y": 3 }
+    ],
+    "_minMoves": 29
+  },
+  {
+    "id": "puzzle_003",
+    "name": "横丁パズル",
+    "difficulty": "beginner",
+    "board": { "width": 4, "height": 5 },
+    "exit": { "x": 1, "y": 5, "width": 2, "height": 1 },
+    "blocks": [
+      { "id": "target", "type": "2x2", "x": 1, "y": 0, "isTarget": true },
+      { "id": "a1", "type": "1x2", "x": 0, "y": 0 },
+      { "id": "a2", "type": "1x2", "x": 3, "y": 0 },
+      { "id": "a3", "type": "1x2", "x": 0, "y": 2 },
+      { "id": "a4", "type": "1x2", "x": 3, "y": 2 },
+      { "id": "b1", "type": "2x1", "x": 1, "y": 2 },
+      { "id": "d1", "type": "1x1", "x": 1, "y": 3 },
+      { "id": "d2", "type": "1x1", "x": 2, "y": 3 }
+    ],
+    "_minMoves": 27
+  },
+  {
+    "id": "puzzle_004",
+    "name": "交差点",
+    "difficulty": "intermediate",
+    "board": { "width": 4, "height": 5 },
+    "exit": { "x": 1, "y": 5, "width": 2, "height": 1 },
+    "blocks": [
+      { "id": "target", "type": "2x2", "x": 1, "y": 0, "isTarget": true },
+      { "id": "a1", "type": "1x2", "x": 0, "y": 1 },
+      { "id": "a2", "type": "1x2", "x": 3, "y": 1 },
+      { "id": "b1", "type": "2x1", "x": 1, "y": 2 },
+      { "id": "c1", "type": "1x1", "x": 0, "y": 0 },
+      { "id": "c2", "type": "1x1", "x": 3, "y": 0 },
+      { "id": "c3", "type": "1x1", "x": 0, "y": 3 },
+      { "id": "c4", "type": "1x1", "x": 3, "y": 3 },
+      { "id": "b2", "type": "2x1", "x": 1, "y": 3 }
+    ],
+    "_minMoves": 31
+  },
+  {
+    "id": "puzzle_005",
+    "name": "道を開けろ",
+    "difficulty": "expert",
+    "board": { "width": 4, "height": 5 },
+    "exit": { "x": 1, "y": 5, "width": 2, "height": 1 },
+    "blocks": [
+      { "id": "target", "type": "2x2", "x": 1, "y": 0, "isTarget": true },
+      { "id": "a1", "type": "1x2", "x": 0, "y": 0 },
+      { "id": "a2", "type": "1x2", "x": 3, "y": 0 },
+      { "id": "b1", "type": "2x1", "x": 1, "y": 2 },
+      { "id": "c1", "type": "1x2", "x": 0, "y": 2 },
+      { "id": "c2", "type": "1x2", "x": 3, "y": 2 },
+      { "id": "d1", "type": "1x1", "x": 1, "y": 4 },
+      { "id": "d2", "type": "1x1", "x": 2, "y": 4 },
+      { "id": "d3", "type": "1x1", "x": 0, "y": 4 },
+      { "id": "d4", "type": "1x1", "x": 3, "y": 4 }
+    ],
+    "_minMoves": 118
+  }
+]
