@@ -1,6 +1,17 @@
 import type { Block } from '../game/types';
 import { Board } from '../game/Board';
 
+/** ブロック移動アニメーション状態 */
+interface BlockAnimation {
+  blockId: string;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
+  startTime: number;
+  duration: number;
+}
+
 /** Canvas描画設定 */
 export interface RenderConfig {
   cellSize: number;
@@ -39,6 +50,8 @@ export class Renderer {
   /** 盤面描画エリアの左上オフセット（canvas内座標） */
   offsetX: number = 0;
   offsetY: number = 0;
+  private animation: BlockAnimation | null = null;
+  private animationCallback: (() => void) | null = null;
 
   constructor(canvas: HTMLCanvasElement, config?: Partial<RenderConfig>) {
     this.canvas = canvas;
@@ -151,15 +164,19 @@ export class Renderer {
     ctx.fillText('EXIT', px + (ex.width * cs) / 2, py + cs / 2);
   }
 
-  /** 個別ブロック描画 */
+  /** 個別ブロック描画（アニメーション対応） */
   private drawBlock(block: Block, color: string): void {
     const { ctx, config } = this;
     const cs = config.cellSize;
     const r = config.borderRadius;
     const gap = 3;
 
-    const px = this.offsetX + block.x * cs + gap;
-    const py = this.offsetY + block.y * cs + gap;
+    const animPos = this.getAnimatedPosition(block);
+    const bx = animPos ? animPos.x : block.x;
+    const by = animPos ? animPos.y : block.y;
+
+    const px = this.offsetX + bx * cs + gap;
+    const py = this.offsetY + by * cs + gap;
     const w = block.w * cs - gap * 2;
     const h = block.h * cs - gap * 2;
 
@@ -199,6 +216,48 @@ export class Renderer {
     return {
       gx: (cx - this.offsetX) / this.config.cellSize,
       gy: (cy - this.offsetY) / this.config.cellSize,
+    };
+  }
+
+  /** アニメーション中かどうか */
+  get isAnimating(): boolean {
+    return this.animation !== null;
+  }
+
+  /** ブロック移動アニメーションを開始 */
+  startAnimation(blockId: string, fromX: number, fromY: number, toX: number, toY: number, onComplete?: () => void): void {
+    this.animation = {
+      blockId,
+      fromX,
+      fromY,
+      toX,
+      toY,
+      startTime: performance.now(),
+      duration: 120,
+    };
+    this.animationCallback = onComplete ?? null;
+  }
+
+  /** アニメーション中のブロック描画位置を取得（アニメなしなら null） */
+  private getAnimatedPosition(block: Block): { x: number; y: number } | null {
+    if (!this.animation || this.animation.blockId !== block.id) return null;
+
+    const elapsed = performance.now() - this.animation.startTime;
+    const t = Math.min(elapsed / this.animation.duration, 1);
+    // ease-out
+    const ease = 1 - (1 - t) * (1 - t);
+
+    if (t >= 1) {
+      const cb = this.animationCallback;
+      this.animation = null;
+      this.animationCallback = null;
+      cb?.();
+      return null;
+    }
+
+    return {
+      x: this.animation.fromX + (this.animation.toX - this.animation.fromX) * ease,
+      y: this.animation.fromY + (this.animation.toY - this.animation.fromY) * ease,
     };
   }
 }

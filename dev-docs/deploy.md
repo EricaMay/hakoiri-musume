@@ -26,6 +26,9 @@ https://dash.cloudflare.com/
 | Build command | `npm run build` |
 | Build output directory | `dist` |
 
+> **「Deploy command」欄が表示された場合**: **空欄のままでOK**。  
+> GitHub 連携の場合、ビルド後のデプロイは Cloudflare が自動で行うため、別途デプロイコマンドは不要。
+
 > **注意**: Node.js バージョンが古い場合はビルドに失敗する。  
 > 環境変数に `NODE_VERSION=20` を設定すれば OK。
 

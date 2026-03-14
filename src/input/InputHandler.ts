@@ -84,6 +84,7 @@ export class InputHandler {
   // --- ドラッグロジック ---
   private startDrag(cx: number, cy: number): void {
     if (this.board.state !== 'playing') return;
+    if (this.renderer.isAnimating) return;
     const { gx, gy } = this.renderer.canvasToGrid(cx, cy);
     const block = this.board.getBlockAt(Math.floor(gx), Math.floor(gy));
     if (!block) return;
@@ -111,8 +112,24 @@ export class InputHandler {
         distance = Math.max(1, Math.round(Math.abs(dy)));
       }
 
-      const moved = this.board.moveBlock(this.dragging.block.id, dir, distance);
-      if (moved) this.onMoveCallback?.();
+      // アニメーション用に移動前の位置を記録
+      const block = this.dragging.block;
+      const fromX = block.x;
+      const fromY = block.y;
+
+      const moved = this.board.moveBlock(block.id, dir, distance);
+      if (moved) {
+        // 移動後の位置を取得してアニメーション開始
+        const movedBlock = this.board.blocks.find(b => b.id === block.id);
+        if (movedBlock) {
+          this.renderer.startAnimation(
+            block.id, fromX, fromY, movedBlock.x, movedBlock.y,
+            () => this.onMoveCallback?.(),
+          );
+        } else {
+          this.onMoveCallback?.();
+        }
+      }
     }
 
     this.dragging = null;

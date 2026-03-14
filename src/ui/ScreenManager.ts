@@ -2,6 +2,21 @@ import type { PuzzleDef, ScreenType } from '../game/types';
 import { Board } from '../game/Board';
 import { Renderer } from '../render/Renderer';
 import { InputHandler } from '../input/InputHandler';
+import { ProgressStore } from '../data/ProgressStore';
+
+/** 最小手数を PuzzleDef から取得（_minMoves フィールド） */
+function getMinMoves(puzzle: PuzzleDef): number | undefined {
+  return (puzzle as PuzzleDef & { _minMoves?: number })._minMoves;
+}
+
+/** 星評価を計算 */
+function calcStars(moves: number, minMoves: number | undefined): number {
+  if (!minMoves || minMoves <= 0) return 1;
+  const ratio = moves / minMoves;
+  if (ratio <= 1.5) return 3;
+  if (ratio <= 2.5) return 2;
+  return 1;
+}
 
 /** 画面遷移管理 */
 export class ScreenManager {
@@ -14,12 +29,14 @@ export class ScreenManager {
   private canvas: HTMLCanvasElement;
   private uiContainer: HTMLDivElement;
   private animFrameId: number = 0;
+  private progress: ProgressStore;
 
   constructor(canvas: HTMLCanvasElement, uiContainer: HTMLDivElement, puzzles: PuzzleDef[]) {
     this.canvas = canvas;
     this.uiContainer = uiContainer;
     this.puzzles = puzzles;
     this.currentScreen = 'select';
+    this.progress = new ProgressStore();
   }
 
   start(): void {
@@ -43,7 +60,12 @@ export class ScreenManager {
     this.puzzles.forEach((p, i) => {
       const btn = document.createElement('button');
       btn.className = 'puzzle-btn';
-      btn.innerHTML = `<span class="puzzle-name">${p.name}</span><span class="puzzle-diff">${this.diffLabel(p.difficulty)}</span>`;
+
+      const prog = this.progress.get(p.id);
+      const clearMark = prog?.cleared ? '✓ ' : '';
+      const bestLabel = prog?.bestMoves ? ` (最少: ${prog.bestMoves}手)` : '';
+
+      btn.innerHTML = `<span class="puzzle-name">${clearMark}${p.name}${bestLabel}</span><span class="puzzle-diff">${this.diffLabel(p.difficulty)}</span>`;
       btn.addEventListener('click', () => this.startGame(i));
       list.appendChild(btn);
     });
@@ -161,14 +183,30 @@ export class ScreenManager {
   private showClear(): void {
     this.currentScreen = 'clear';
 
+    const puzzle = this.puzzles[this.currentPuzzleIndex];
+    const moves = this.board!.moveCount;
+    const minMoves = getMinMoves(puzzle);
+    const stars = calcStars(moves, minMoves);
+
+    // 記録を保存
+    this.progress.recordClear(puzzle.id, moves);
+
     const overlay = document.createElement('div');
     overlay.className = 'clear-overlay';
 
     const msg = document.createElement('div');
     msg.className = 'clear-message';
+
+    const starsStr = '★'.repeat(stars) + '☆'.repeat(3 - stars);
+    const optimalLine = minMoves
+      ? `<p class="clear-optimal">最短 ${minMoves} 手 / あなた ${moves} 手</p>`
+      : '';
+
     msg.innerHTML = `
       <h2>🎉 クリア！</h2>
-      <p>手数: ${this.board!.moveCount}</p>
+      <p class="clear-stars">${starsStr}</p>
+      <p>手数: ${moves}</p>
+      ${optimalLine}
     `;
 
     const btnRow = document.createElement('div');
