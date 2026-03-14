@@ -36,8 +36,16 @@ https://dash.cloudflare.com/
 「Save and Deploy」をクリック → 初回ビルドが走り、完了後に URL が発行される。
 
 ### 5. 公開 URL
-- `https://hakoiri-musume.pages.dev`（自動付与）
+- 現在の公開 URL: https://hakoiri-musume.v8jq7w2dm6.workers.dev
+- `https://<project-name>.pages.dev`（Cloudflare Pages 自動付与）
 - カスタムドメインは Dashboard の「Custom domains」から設定可能
+
+### 6. セキュリティヘッダー
+`public/_headers` ファイルで Cloudflare Pages のレスポンスヘッダーを設定済み:
+- CSP (Content-Security-Policy): スクリプト・スタイルを自身のオリジンに制限
+- X-Frame-Options: DENY（iframe 埋め込み禁止）
+- X-Content-Type-Options: nosniff
+- Referrer-Policy, Permissions-Policy
 
 ## 以降の運用
 - `main` ブランチに push するだけで自動デプロイ

@@ -45,8 +45,8 @@ export class ProgressStore {
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw) as ProgressData;
-    } catch {
-      // 破損データは無視
+    } catch (e) {
+      console.warn('[ProgressStore] 進捗データの読込に失敗:', e);
     }
     return {};
   }
@@ -54,8 +54,8 @@ export class ProgressStore {
   private save(): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.data));
-    } catch {
-      // ストレージ満杯等は無視
+    } catch (e) {
+      console.warn('[ProgressStore] 進捗データの保存に失敗:', e);
     }
   }
 }

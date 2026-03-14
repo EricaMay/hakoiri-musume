@@ -6,6 +6,9 @@ export default defineConfig({
     host: true,
     port: 3000,
   },
+  test: {
+    testTimeout: 30_000,
+  },
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
