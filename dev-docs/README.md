@@ -61,14 +61,16 @@ Klotski 系スライディングブロックパズルゲーム「箱入り娘」
 - 難易度は最小手数から自動設定: beginner ≤30手 / intermediate 31〜60手 / advanced 61〜100手 / expert 101手以上
 
 ## デプロイ方針・手順
-- 静的ホスティング（GitHub Pages 等）— 後日決定
+- **Cloudflare Pages** で GitHub 連携自動デプロイ
+- 詳細手順: [dev-docs/deploy.md](deploy.md)
+- GitHub リポ: https://github.com/EricaMay/hakoiri-musume
 
-## ロードマップ・ステップ・Todo
-- [x] Phase 1: MVP（基本ゲーム動作）
-- [ ] Phase 2: UX向上（アニメ・サウンド・アンドゥ・リセット）
-- [ ] Phase 3: 学習モード（ヒント・ソルバー）
-- [ ] Phase 4: チャレンジモード（タイマー・レベル判定）
-- [ ] Phase 5: コンテンツ拡充（50問以上）
+## ロードマップ
+- [x] Phase 1: MVP（基本ゲーム動作 + ソルバー検証）
+- [ ] Phase 2: UX向上（アニメーション・PWA・ベスト記録・クリア演出）
+- [ ] Phase 3: 学習モード（ヒント機能・解法リプレイ・最適手数表示）
+- [ ] Phase 4: チャレンジ（星評価・タイマー・統計）
+- [ ] Phase 5: コンテンツ拡充（50問以上・章立て・カスタムパズル）
 
 ## アンチパターン
 - ゲームロジックと描画の密結合を避ける（MVC的分離を維持）
