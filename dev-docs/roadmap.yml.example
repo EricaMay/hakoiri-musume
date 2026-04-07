@@ -1,0 +1,24 @@
+# roadmap.yml — タスクのグルーピング設定（オプション）
+#
+# このファイルがなくても gen_progress.py は動作します。
+# すべてのタスクが「全タスク一覧」として表示されます。
+#
+# グルーピングしたい場合、このファイルを dev-docs/roadmap.yml にコピーして
+# プロジェクトに合わせて編集してください。
+
+# tasks: タスクディレクトリ名 → ロードマップ情報のマッピング
+tasks:
+  # 20260401-001-initial-setup:
+  #   id: A1
+  #   name: 初期セットアップ
+  #   actor: planner
+  # 20260401-002-ci-pipeline:
+  #   id: A2
+  #   name: CI パイプライン構築
+  #   actor: tester
+
+# groups: 表示順序とグルーピングの定義
+groups:
+  # - label: "Group A"
+  #   description: "初期構築"
+  #   ids: [A1, A2]

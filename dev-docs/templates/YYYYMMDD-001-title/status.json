@@ -1,0 +1,11 @@
+{
+  "task_id": "YYYYMMDD-001-title",
+  "summary": "",
+  "state": "planned",
+  "next_actor": "planner",
+  "review_round": 0,
+  "last_updated_by": "human",
+  "last_updated_at": "YYYY-MM-DDTHH:MM:SS+09:00",
+  "must_pass": ["lint", "typecheck", "unit-test"],
+  "notes": ""
+}

@@ -1,8 +1,7 @@
 # 新規・更新
-（なし）
-
 
 # 考慮済み
+- Cloudflare Web Analytics スニペットを index.html に追加・デプロイ済み（token: e96e...）
 - Phase2完了に伴うドキュメント更新 → README ロードマップ Phase 2 を [x] に更新。構成例のディレクトリ名修正
 - Cloudflare Workers で公開中 → セキュリティヘッダー（CSP, X-Frame-Options 等）を public/_headers に設定。deploy.md に公開 URL 追記
 - 別LLMのレビュー所見を踏まえた対応:

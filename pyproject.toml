@@ -1,0 +1,29 @@
+[project]
+name = "hakoiri-musume"
+version = "0.1.0"
+description = ""
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.6.0",
+    "mypy>=1.8.0",
+    "pytest>=8.0.0",
+]
+
+[tool.uv]
+preview = true
+
+[tool.ruff]
+target-version = "py310"
+extend-exclude = ["build"]
+
+[tool.mypy]
+python_version = "3.10"
+explicit_package_bases = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
