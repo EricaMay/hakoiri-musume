@@ -34,6 +34,8 @@ export interface PuzzleDef {
   board: { width: number; height: number };
   exit: ExitDef;
   blocks: BlockDef[];
+  /** メタデータ: ソルバーで算出した最小手数 */
+  _minMoves?: number;
 }
 
 /** ブロック実行時状態 */

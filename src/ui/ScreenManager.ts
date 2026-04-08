@@ -4,9 +4,9 @@ import { Renderer } from '../render/Renderer';
 import { InputHandler } from '../input/InputHandler';
 import { ProgressStore } from '../data/ProgressStore';
 
-/** 最小手数を PuzzleDef から取得（_minMoves フィールド） */
+/** 最小手数を PuzzleDef から取得 */
 function getMinMoves(puzzle: PuzzleDef): number | undefined {
-  return (puzzle as PuzzleDef & { _minMoves?: number })._minMoves;
+  return puzzle._minMoves;
 }
 
 /** 星評価を計算 */
@@ -92,7 +92,9 @@ export class ScreenManager {
 
     const info = document.createElement('div');
     info.className = 'game-info';
-    info.innerHTML = `<span class="puzzle-title">${puzzle.name}</span><span id="move-count">手数: 0</span>`;
+    const minMoves = getMinMoves(puzzle);
+    const minMovesLabel = minMoves != null ? `<span class="min-moves">最短: ${minMoves}手</span>` : '';
+    info.innerHTML = `<span class="puzzle-title">${puzzle.name}</span><span id="move-count">手数: 0</span>${minMovesLabel}`;
 
     const controls = document.createElement('div');
     controls.className = 'game-controls';
