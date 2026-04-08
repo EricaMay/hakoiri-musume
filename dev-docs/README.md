@@ -35,11 +35,10 @@ hakoiri-musume/
 │   └── prompts/         # Copilot prompt 定義
 ├── dev-docs/            # 開発ドキュメント
 │   ├── README.md        # このファイル（全容と運用ルール）
-│   ├── fb-to-llm.md     # 人間からのフィードバック
-│   ├── llm-msg-bd.md    # LLM 伝言板
 │   ├── summary.md       # タスク完了サマリ
 │   ├── tasks/           # タスクディレクトリ
-│   └── templates/       # タスクテンプレート
+│   ├── templates/       # タスクテンプレート
+│   └── archive/         # 過去ドキュメント（参照用）
 ├── src/
 │   ├── main.ts          # エントリポイント
 │   ├── style.css        # グローバルスタイル
@@ -78,15 +77,28 @@ hakoiri-musume/
 - 同サイズブロックは交換可能として状態を圧縮（探索空間の削減）
 - 難易度は最小手数から自動設定: beginner ≤30手 / intermediate 31〜60手 / advanced 61〜100手 / expert 101手以上
 
+### 現在のパズル一覧
+| # | 名前 | 最小手数 | 難易度 |
+|---|------|---------|--------|
+| 1 | はじめの一歩 | 15手 | beginner |
+| 2 | 壁をかわせ | 29手 | beginner |
+| 3 | 横丁パズル | 27手 | beginner |
+| 4 | 交差点 | 31手 | intermediate |
+| 5 | 道を開けろ | 118手 | expert |
+
 ### デプロイ方針・手順
 - **Cloudflare Pages** で GitHub 連携自動デプロイ
-- 詳細手順: [dev-docs/deploy.md](deploy.md)
+- 詳細手順: [dev-docs/archive/deploy.md](archive/deploy.md)
 - GitHub リポ: https://github.com/EricaMay/hakoiri-musume
 
 ### ロードマップ
 - [x] Phase 1: MVP（基本ゲーム動作 + ソルバー検証）
 - [x] Phase 2: UX向上（アニメーション・PWA・ベスト記録・クリア演出）
 - [ ] Phase 3: 学習モード（ヒント機能・解法リプレイ・最適手数表示）
+  - `20260408-001-show-min-moves` — ゲーム画面に最適手数表示
+  - `20260408-002-solver-web-worker` — Solver の Web Worker 化
+  - `20260408-003-hint-feature` — ヒント機能
+  - `20260408-004-solution-replay` — 解法リプレイ
 - [ ] Phase 4: チャレンジ（星評価・タイマー・統計）
 - [ ] Phase 5: コンテンツ拡充（50問以上・章立て・カスタムパズル）
 
@@ -96,6 +108,13 @@ hakoiri-musume/
 ### マルチゲーム方針
 - ゲームごとに独立したリポジトリ・Cloudflare Pages プロジェクトとする
 - 共通ライブラリは作らず、必要に応じてコピー or npm パッケージ化
+
+### 開発上の注意事項
+- **Node.js 20.15.0** のため Vite 8 は使えない。Vite 6 を使うこと
+- tsconfig.json で `erasableSyntaxOnly` が有効。`private` パラメータプロパティは使えない
+- `verbatimModuleSyntax` が有効。型のみのインポートは `import type { ... }` を使う
+- BFS ソルバーの `maxStates` デフォルトは 500,000
+- パズルデータの `_minMoves` フィールドはメタデータ（クリア画面で最適手数比較に使用）
 
 ---
 
@@ -136,6 +155,7 @@ hakoiri-musume/
 - `dev-docs/tasks/<task_id>/`
   - `task.md`: 人間からの依頼内容
     - 人間からの依頼、背景、完了条件、制約、フィードバックを記載する
+    - LLM とのやりとり（フィードバック・伝言）もタスク単位でこのファイルに記載する
   - `plan.md`: 実装計画
     - 実装担当モデルが実装計画を記載する
     - 目的、変更対象、実装方針、検証方法、前提、リスクを含める
@@ -153,6 +173,8 @@ hakoiri-musume/
   - 詳細は各 task ディレクトリを参照する
 - `dev-docs/templates/`
   - タスクやレビューのテンプレートファイルを置くディレクトリ
+- `dev-docs/archive/`
+  - 過去のドキュメント（参照用に残す）
 
 ### 個別ファイルのフォーマットや記載例
 #### worklog.md
