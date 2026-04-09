@@ -1,4 +1,4 @@
-import type { Block } from '../game/types';
+import type { Block, Direction } from '../game/types';
 import { Board } from '../game/Board';
 
 /** ブロック移動アニメーション状態 */
@@ -52,6 +52,7 @@ export class Renderer {
   offsetY: number = 0;
   private animation: BlockAnimation | null = null;
   private animationCallback: (() => void) | null = null;
+  private hintHighlightData: { blockId: string; direction: Direction } | null = null;
 
   constructor(canvas: HTMLCanvasElement, config?: Partial<RenderConfig>) {
     this.canvas = canvas;
@@ -140,6 +141,11 @@ export class Renderer {
       board.width * cellSize,
       board.height * cellSize,
     );
+
+    // ヒントハイライト
+    if (this.hintHighlightData) {
+      this.drawHintOverlay(board);
+    }
   }
 
   /** EXIT ゾーンを描画 */
@@ -219,6 +225,16 @@ export class Renderer {
     };
   }
 
+  /** ヒントハイライトを設定 */
+  setHintHighlight(blockId: string, direction: Direction): void {
+    this.hintHighlightData = { blockId, direction };
+  }
+
+  /** ヒントハイライトをクリア */
+  clearHintHighlight(): void {
+    this.hintHighlightData = null;
+  }
+
   /** アニメーション中かどうか */
   get isAnimating(): boolean {
     return this.animation !== null;
@@ -259,5 +275,69 @@ export class Renderer {
       x: this.animation.fromX + (this.animation.toX - this.animation.fromX) * ease,
       y: this.animation.fromY + (this.animation.toY - this.animation.fromY) * ease,
     };
+  }
+
+  /** ヒントハイライト描画（パルスボーダー + 方向矢印） */
+  private drawHintOverlay(board: Board): void {
+    if (!this.hintHighlightData) return;
+    const { blockId, direction } = this.hintHighlightData;
+    const block = board.blocks.find((b) => b.id === blockId);
+    if (!block) return;
+
+    const { ctx, config } = this;
+    const cs = config.cellSize;
+    const r = config.borderRadius;
+    const gap = 3;
+
+    const px = this.offsetX + block.x * cs + gap;
+    const py = this.offsetY + block.y * cs + gap;
+    const w = block.w * cs - gap * 2;
+    const h = block.h * cs - gap * 2;
+
+    // パルスエフェクト
+    const pulse = 0.5 + 0.5 * Math.sin(performance.now() / 300);
+
+    // 金色ボーダー
+    ctx.save();
+    ctx.strokeStyle = '#ffd700';
+    ctx.lineWidth = 3;
+    ctx.globalAlpha = 0.4 + 0.6 * pulse;
+    ctx.shadowColor = '#ffd700';
+    ctx.shadowBlur = 12 * pulse;
+    ctx.beginPath();
+    ctx.roundRect(px, py, w, h, r);
+    ctx.stroke();
+    ctx.restore();
+
+    // 方向矢印
+    ctx.save();
+    ctx.globalAlpha = 0.6 + 0.4 * pulse;
+    this.drawHintArrow(px + w / 2, py + h / 2, direction, Math.min(w, h) * 0.25);
+    ctx.restore();
+  }
+
+  /** 方向矢印を描画 */
+  private drawHintArrow(cx: number, cy: number, dir: Direction, size: number): void {
+    const ctx = this.ctx;
+    ctx.save();
+    ctx.translate(cx, cy);
+
+    const angles: Record<Direction, number> = {
+      right: 0,
+      down: Math.PI / 2,
+      left: Math.PI,
+      up: -Math.PI / 2,
+    };
+    ctx.rotate(angles[dir]);
+
+    ctx.fillStyle = '#ffd700';
+    ctx.beginPath();
+    ctx.moveTo(size, 0);
+    ctx.lineTo(-size * 0.3, -size * 0.5);
+    ctx.lineTo(-size * 0.3, size * 0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.restore();
   }
 }

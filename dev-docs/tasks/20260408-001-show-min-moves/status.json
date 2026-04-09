@@ -1,11 +1,11 @@
 {
   "task_id": "20260408-001-show-min-moves",
   "summary": "ゲーム画面に最適手数を常時表示",
-  "state": "implemented",
-  "next_actor": "reviewer",
+  "state": "done",
+  "next_actor": "human",
   "review_round": 0,
-  "last_updated_by": "planner",
-  "last_updated_at": "2026-04-09T08:55:00Z",
+  "last_updated_by": "reviewer",
+  "last_updated_at": "2026-04-09T00:15:38.016Z",
   "must_pass": ["typecheck", "unit-test"],
   "notes": "Phase 3 タスク①。依存なし。"
 }

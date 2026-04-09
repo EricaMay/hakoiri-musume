@@ -15,6 +15,7 @@ export class InputHandler {
     lastCy: number;
   } | null = null;
   private onMoveCallback: (() => void) | null = null;
+  enabled: boolean = true;
 
   constructor(canvas: HTMLCanvasElement, board: Board, renderer: Renderer) {
     this.canvas = canvas;
@@ -83,7 +84,7 @@ export class InputHandler {
 
   // --- ドラッグロジック ---
   private startDrag(cx: number, cy: number): void {
-    if (this.board.state !== 'playing') return;
+    if (!this.enabled || this.board.state !== 'playing') return;
     if (this.renderer.isAnimating) return;
     const { gx, gy } = this.renderer.canvasToGrid(cx, cy);
     const block = this.board.getBlockAt(Math.floor(gx), Math.floor(gy));

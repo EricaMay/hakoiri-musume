@@ -1,11 +1,11 @@
 {
   "task_id": "20260408-003-hint-feature",
   "summary": "ヒント機能（次の最適手をハイライト表示）",
-  "state": "planned",
-  "next_actor": "planner",
+  "state": "implemented",
+  "next_actor": "reviewer",
   "review_round": 0,
-  "last_updated_by": "human",
-  "last_updated_at": "2026-04-08T01:30:00Z",
-  "must_pass": ["typecheck", "unit-test"],
-  "notes": "Phase 3 タスク③。Task 002（Web Worker）に依存。"
+  "last_updated_by": "copilot",
+  "last_updated_at": "2026-04-08T10:00:00Z",
+  "must_pass": ["typecheck", "unit-test", "build"],
+  "notes": "Phase 3 タスク③。typecheck/test/build 全パス済み。"
 }

@@ -1,8 +1,10 @@
-import type { PuzzleDef, ScreenType } from '../game/types';
+import type { PuzzleDef, ScreenType, Direction } from '../game/types';
 import { Board } from '../game/Board';
 import { Renderer } from '../render/Renderer';
 import { InputHandler } from '../input/InputHandler';
 import { ProgressStore } from '../data/ProgressStore';
+import { SolverClient } from '../game/SolverClient';
+import { ReplayController } from './ReplayController';
 
 /** 最小手数を PuzzleDef から取得 */
 function getMinMoves(puzzle: PuzzleDef): number | undefined {
@@ -30,6 +32,9 @@ export class ScreenManager {
   private uiContainer: HTMLDivElement;
   private animFrameId: number = 0;
   private progress: ProgressStore;
+  private solverClient: SolverClient | null = null;
+  private hintCount: number = 0;
+  private replayController: ReplayController | null = null;
 
   constructor(canvas: HTMLCanvasElement, uiContainer: HTMLDivElement, puzzles: PuzzleDef[]) {
     this.canvas = canvas;
@@ -46,6 +51,7 @@ export class ScreenManager {
   private showSelect(): void {
     this.currentScreen = 'select';
     this.stopGameLoop();
+    this.cleanupReplay();
     this.canvas.style.display = 'none';
 
     this.uiContainer.innerHTML = '';
@@ -99,6 +105,11 @@ export class ScreenManager {
     const controls = document.createElement('div');
     controls.className = 'game-controls';
 
+    // 通常操作ボタン
+    const normalControls = document.createElement('div');
+    normalControls.className = 'controls-group';
+    normalControls.id = 'normal-controls';
+
     const undoBtn = document.createElement('button');
     undoBtn.className = 'header-btn';
     undoBtn.textContent = '↩ 戻す';
@@ -115,8 +126,52 @@ export class ScreenManager {
       this.updateUI();
     });
 
-    controls.appendChild(undoBtn);
-    controls.appendChild(resetBtn);
+    const hintBtn = document.createElement('button');
+    hintBtn.className = 'header-btn';
+    hintBtn.id = 'hint-btn';
+    hintBtn.textContent = '💡';
+    hintBtn.addEventListener('click', () => this.onHintClick());
+
+    const replayBtn = document.createElement('button');
+    replayBtn.className = 'header-btn';
+    replayBtn.id = 'replay-btn';
+    replayBtn.textContent = '▶ 解法';
+    replayBtn.addEventListener('click', () => this.onReplayClick());
+
+    normalControls.appendChild(undoBtn);
+    normalControls.appendChild(resetBtn);
+    normalControls.appendChild(hintBtn);
+    normalControls.appendChild(replayBtn);
+
+    // リプレイ操作ボタン（初期非表示）
+    const replayControls = document.createElement('div');
+    replayControls.className = 'controls-group';
+    replayControls.id = 'replay-controls';
+    replayControls.style.display = 'none';
+
+    const pauseBtn = document.createElement('button');
+    pauseBtn.className = 'header-btn';
+    pauseBtn.id = 'replay-pause-btn';
+    pauseBtn.textContent = '⏸';
+    pauseBtn.addEventListener('click', () => this.toggleReplayPause());
+
+    const stopBtn = document.createElement('button');
+    stopBtn.className = 'header-btn';
+    stopBtn.textContent = '⏹ 停止';
+    stopBtn.addEventListener('click', () => this.stopReplay());
+
+    const speedBtn = document.createElement('button');
+    speedBtn.className = 'header-btn';
+    speedBtn.id = 'replay-speed-btn';
+    speedBtn.textContent = '普通';
+    speedBtn.addEventListener('click', () => this.cycleReplaySpeed());
+
+    replayControls.appendChild(pauseBtn);
+    replayControls.appendChild(stopBtn);
+    replayControls.appendChild(speedBtn);
+
+    controls.appendChild(normalControls);
+    controls.appendChild(replayControls);
 
     header.appendChild(backBtn);
     header.appendChild(info);
@@ -124,6 +179,7 @@ export class ScreenManager {
     this.uiContainer.appendChild(header);
 
     // ゲーム初期化
+    this.hintCount = 0;
     this.board = new Board(puzzle);
     this.renderer = new Renderer(this.canvas);
     this.renderer.resize(
@@ -174,6 +230,9 @@ export class ScreenManager {
   private updateUI(): void {
     if (!this.board) return;
 
+    // ヒントハイライトをクリア
+    this.renderer?.clearHintHighlight();
+
     const el = document.getElementById('move-count');
     if (el) el.textContent = `手数: ${this.board.moveCount}`;
 
@@ -203,12 +262,16 @@ export class ScreenManager {
     const optimalLine = minMoves
       ? `<p class="clear-optimal">最短 ${minMoves} 手 / あなた ${moves} 手</p>`
       : '';
+    const hintLine = this.hintCount > 0
+      ? `<p class="clear-hint-count">ヒント使用: ${this.hintCount}回</p>`
+      : '';
 
     msg.innerHTML = `
       <h2>🎉 クリア！</h2>
       <p class="clear-stars">${starsStr}</p>
       <p>手数: ${moves}</p>
       ${optimalLine}
+      ${hintLine}
     `;
 
     const btnRow = document.createElement('div');
@@ -247,5 +310,176 @@ export class ScreenManager {
       expert: '★★★★',
     };
     return map[d] ?? d;
+  }
+
+  // --- ヒント機能 ---
+
+  private getSolverClient(): SolverClient {
+    if (!this.solverClient) {
+      this.solverClient = new SolverClient();
+    }
+    return this.solverClient;
+  }
+
+  private async onHintClick(): Promise<void> {
+    if (!this.board || this.board.state !== 'playing') return;
+
+    const hintBtn = document.getElementById('hint-btn') as HTMLButtonElement | null;
+    if (!hintBtn || hintBtn.disabled) return;
+    hintBtn.textContent = '⏳';
+    hintBtn.disabled = true;
+
+    try {
+      const client = this.getSolverClient();
+      const result = await client.solveFromState(
+        this.board.blocks,
+        { width: this.board.width, height: this.board.height },
+        this.board.exit,
+      );
+
+      if (result.solvable && result.steps.length > 0) {
+        const step = result.steps[0];
+        this.renderer?.setHintHighlight(step.blockId, step.direction);
+        this.hintCount++;
+      } else {
+        hintBtn.textContent = '解なし';
+        setTimeout(() => {
+          if (hintBtn) { hintBtn.textContent = '💡'; hintBtn.disabled = false; }
+        }, 2000);
+        return;
+      }
+    } catch {
+      hintBtn.textContent = '❌';
+      setTimeout(() => {
+        if (hintBtn) { hintBtn.textContent = '💡'; hintBtn.disabled = false; }
+      }, 2000);
+      return;
+    }
+
+    hintBtn.textContent = '💡';
+    hintBtn.disabled = false;
+  }
+
+  // --- 解法リプレイ ---
+
+  private async onReplayClick(): Promise<void> {
+    if (!this.board) return;
+
+    const puzzle = this.puzzles[this.currentPuzzleIndex];
+    const replayBtn = document.getElementById('replay-btn') as HTMLButtonElement | null;
+    if (!replayBtn || replayBtn.disabled) return;
+    replayBtn.textContent = '⏳';
+    replayBtn.disabled = true;
+
+    try {
+      const client = this.getSolverClient();
+      const result = await client.solve(puzzle);
+
+      if (!result.solvable) {
+        replayBtn.textContent = '▶ 解法';
+        replayBtn.disabled = false;
+        return;
+      }
+
+      // 盤面リセット → リプレイ開始
+      this.board.reset(puzzle);
+      this.renderer?.clearHintHighlight();
+      if (this.input) this.input.enabled = false;
+
+      this.showReplayControls();
+
+      const totalSteps = result.steps.length;
+      this.replayController = new ReplayController();
+      this.replayController.start(
+        result.steps,
+        (step: { blockId: string; direction: Direction }, index: number) => {
+          return new Promise<void>((resolve) => {
+            if (!this.board || !this.renderer) { resolve(); return; }
+
+            const block = this.board.blocks.find((b) => b.id === step.blockId);
+            if (!block) { resolve(); return; }
+
+            const fromX = block.x;
+            const fromY = block.y;
+            this.board.moveBlock(step.blockId, step.direction, 1);
+
+            const el = document.getElementById('move-count');
+            if (el) el.textContent = `再生: ${index + 1}/${totalSteps} 手`;
+
+            this.renderer.startAnimation(
+              step.blockId, fromX, fromY, block.x, block.y,
+              () => resolve(),
+            );
+          });
+        },
+        () => this.onReplayComplete(),
+      );
+    } catch {
+      replayBtn.textContent = '▶ 解法';
+      replayBtn.disabled = false;
+      if (this.input) this.input.enabled = true;
+    }
+  }
+
+  private onReplayComplete(): void {
+    this.replayController = null;
+    if (this.input) this.input.enabled = true;
+    this.showNormalControls();
+
+    // 手数表示を復帰
+    const el = document.getElementById('move-count');
+    if (el && this.board) el.textContent = `手数: ${this.board.moveCount}`;
+  }
+
+  private toggleReplayPause(): void {
+    if (!this.replayController) return;
+    const btn = document.getElementById('replay-pause-btn');
+    if (this.replayController.isPaused) {
+      this.replayController.resume();
+      if (btn) btn.textContent = '⏸';
+    } else {
+      this.replayController.pause();
+      if (btn) btn.textContent = '▶';
+    }
+  }
+
+  private stopReplay(): void {
+    this.replayController?.stop();
+    this.replayController = null;
+    if (this.input) this.input.enabled = true;
+    this.showNormalControls();
+
+    const el = document.getElementById('move-count');
+    if (el && this.board) el.textContent = `手数: ${this.board.moveCount}`;
+  }
+
+  private cycleReplaySpeed(): void {
+    if (!this.replayController) return;
+    const label = this.replayController.cycleSpeed();
+    const btn = document.getElementById('replay-speed-btn');
+    if (btn) btn.textContent = label;
+  }
+
+  private showReplayControls(): void {
+    const normal = document.getElementById('normal-controls');
+    const replay = document.getElementById('replay-controls');
+    if (normal) normal.style.display = 'none';
+    if (replay) replay.style.display = 'flex';
+  }
+
+  private showNormalControls(): void {
+    const normal = document.getElementById('normal-controls');
+    const replay = document.getElementById('replay-controls');
+    if (normal) normal.style.display = 'flex';
+    if (replay) replay.style.display = 'none';
+  }
+
+  private cleanupReplay(): void {
+    if (this.replayController) {
+      this.replayController.stop();
+      this.replayController = null;
+    }
+    if (this.input) this.input.enabled = true;
+    this.renderer?.clearHintHighlight();
   }
 }

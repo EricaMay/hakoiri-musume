@@ -125,6 +125,21 @@ html, body {
   background: #30363d;
 }
 
+.header-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.controls-group {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.clear-hint-count {
+  font-size: 0.85rem;
+  color: #ffd700 !important;
+}
+
 /* --- Canvas --- */
 canvas {
   display: block;
