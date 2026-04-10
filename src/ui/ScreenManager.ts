@@ -425,6 +425,7 @@ export class ScreenManager {
     this.replayController = null;
     if (this.input) this.input.enabled = true;
     this.showNormalControls();
+    this.resetReplayButton();
 
     // 手数表示を復帰
     const el = document.getElementById('move-count');
@@ -448,6 +449,7 @@ export class ScreenManager {
     this.replayController = null;
     if (this.input) this.input.enabled = true;
     this.showNormalControls();
+    this.resetReplayButton();
 
     const el = document.getElementById('move-count');
     if (el && this.board) el.textContent = `手数: ${this.board.moveCount}`;
@@ -480,6 +482,15 @@ export class ScreenManager {
       this.replayController = null;
     }
     if (this.input) this.input.enabled = true;
+    this.resetReplayButton();
     this.renderer?.clearHintHighlight();
+  }
+
+  private resetReplayButton(): void {
+    const btn = document.getElementById('replay-btn') as HTMLButtonElement | null;
+    if (btn) {
+      btn.textContent = '▶ 解法';
+      btn.disabled = false;
+    }
   }
 }

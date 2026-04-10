@@ -15,3 +15,17 @@
 - リプレイ中はユーザー入力無効
 - 停止すると現在ステップの盤面で操作復帰（通常コントロールに戻る）
 - リプレイ完了後もクリア画面は表示しない（デモモード）
+
+## Review Round 1 修正
+
+### 指摘内容
+- replay-btn がリプレイ完了/停止/画面離脱後に disabled のまま復帰しないバグ
+
+### 修正内容
+- `resetReplayButton()` ヘルパーを追加: `textContent='▶ 解法'` + `disabled=false`
+- `onReplayComplete()`, `stopReplay()`, `cleanupReplay()` の全経路で呼び出し
+
+### 検証
+- typecheck: PASS
+- unit-test: 27/27 PASS
+- build: PASS

@@ -9,3 +9,8 @@
 - 状態: done ✅
 - 概要: `solver.worker.ts` と `SolverClient.ts` を追加し、Solver を Web Worker で Promise ベース実行できる基盤を実装。
 - 補足: `solveFromState()` により任意盤面（Block[]）からの求解に対応し、`Solver.ts` の既存インターフェースは維持。
+
+## 20260408-003-hint-feature
+- 状態: done ✅
+- 概要: ゲーム画面に `💡` ヒントボタンを追加し、Web Worker 経由で現在盤面の最適次手を算出して Canvas 上でハイライト表示。
+- 補足: 計算中表示・解なし時の復帰表示・ヒント使用回数の表示を実装。
