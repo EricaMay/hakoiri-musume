@@ -1,0 +1,11 @@
+{
+  "task_id": "20260411-005-high-traffic-readiness",
+  "summary": "公開準備・高トラフィック対策（CSP修正, キャッシュ, OGP）",
+  "state": "implemented",
+  "next_actor": "reviewer",
+  "review_round": 0,
+  "last_updated_by": "copilot",
+  "last_updated_at": "2026-04-11T17:20:00Z",
+  "must_pass": ["build"],
+  "notes": "コードロジック変更なし。静的ファイル設定のみ。build PASS。"
+}
