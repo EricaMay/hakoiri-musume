@@ -13,8 +13,6 @@ Think in English, write in Japanese.
 ## ファイル構成
 - `dev-docs/README.md`
   - プロジェクト概要、運用ルール、各ドキュメントへの導線を記載、全員が最初に読むべきドキュメント
-- `dev-docs/fb-to-llm.md` 人間のフィードバックを確認
-- `dev-docs/llm-msg-bd.md` LLMの伝言を確認、必要に応じて編集
 
 ## 共通チェック項目
 - 要件を満たしているか

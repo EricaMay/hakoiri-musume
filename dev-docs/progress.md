@@ -3,6 +3,7 @@
 > 自動生成: 2026-04-11 17:20 UTC  
 > `uv run python -m src.devtools.gen_progress` で更新
 
+
 **全体進捗: 4/5 完了**
 
 ## 全タスク一覧

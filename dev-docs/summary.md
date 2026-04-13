@@ -19,3 +19,8 @@
 - 状態: done ✅
 - 概要: ゲーム画面に `▶ 解法` を追加し、初期盤面からの最適解を Web Worker 経由で取得してステップ再生できるようにした。
 - 補足: 一時停止/再開/停止・速度切替・再生中入力無効化に対応し、review 指摘だった replay-btn 復帰漏れを修正済み。
+
+## 20260411-005-high-traffic-readiness
+- 状態: done ✅
+- 概要: `public/_headers` の CSP を Cloudflare Analytics 対応に更新し、`/assets/*` に immutable 長期キャッシュヘッダーを追加。
+- 補足: `index.html` に OGP/Twitter Card/description メタタグを追加し、公開時の共有表示を改善。

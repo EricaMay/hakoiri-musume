@@ -11,13 +11,18 @@ Klotski 系スライディングブロックパズルゲーム「箱入り娘」
 - 4×5 グリッド（可変サイズ対応）上でブロックをスライドし、ターゲットブロックを EXIT まで移動させる
 
 ### 現在の状況
-- **Phase 1 MVP + Phase 2 UX 実装完了**
+- **Phase 1 MVP + Phase 2 UX + Phase 3 学習モード 実装完了**
 - 問題選択 → ゲームプレイ → クリア判定 → 次の問題 の一連のフローが動作
 - 5問の初期パズルデータを収録（全問ソルバーで解答可能性を検証済み）
 - BFS ソルバーでパズルの最小手数を算出し、難易度を自動設定
 - ブロック移動アニメーション（ease-out 120ms）
 - ベスト記録保存（localStorage）、クリア画面に最適手数比較 + 星評価
 - PWA 対応（オフラインプレイ、iPhone ホーム画面追加可能）
+- ゲーム画面に最適手数を常時表示
+- Web Worker によるソルバー非同期実行
+- ヒント機能（次の最適手をハイライト表示）
+- 解法リプレイ（最適解のステップ再生、一時停止/停止/速度切替）
+- 高トラフィック対策（CSP最適化、キャッシュヘッダー、OGP/Twitter Card）
 
 ### 技術スタック・アーキテクチャ
 - **言語**: TypeScript（Vanilla）
@@ -46,13 +51,16 @@ hakoiri-musume/
 │   │   ├── types.ts     # 型定義
 │   │   ├── Board.ts     # 盤面管理・コアロジック
 │   │   ├── Solver.ts    # BFS ソルバー（最短解探索）
+│   │   ├── SolverClient.ts  # Web Worker クライアント
+│   │   ├── solver.worker.ts # Solver Web Worker
 │   │   └── __tests__/   # ユニットテスト
 │   ├── render/
-│   │   └── Renderer.ts  # Canvas描画
+│   │   └── Renderer.ts  # Canvas描画（ヒントハイライト含む）
 │   ├── input/
 │   │   └── InputHandler.ts  # マウス/タッチ入力
 │   ├── ui/
-│   │   └── ScreenManager.ts # 画面遷移管理
+│   │   ├── ScreenManager.ts  # 画面遷移管理
+│   │   └── ReplayController.ts # 解法リプレイ制御
 │   ├── data/
 │   │   └── puzzles.json # パズルデータ（5問）
 │   └── devtools/        # Python 開発ツール
@@ -70,6 +78,7 @@ hakoiri-musume/
 - **テストフレームワーク**: Vitest
 - **Board.ts**: 20 テスト（移動、衝突、クリア判定、undo/reset 等）
 - **Solver.ts**: 3 テスト（trivial 解、解なし検出、全パズル解答可能性の検証）
+- **PuzzleCandidates**: 4 テスト（候補パズルの解答可能性検証）
 - 実行: `npm test`（単発）/ `npm run test:watch`（監視）
 
 ### ソルバー
@@ -94,11 +103,12 @@ hakoiri-musume/
 ### ロードマップ
 - [x] Phase 1: MVP（基本ゲーム動作 + ソルバー検証）
 - [x] Phase 2: UX向上（アニメーション・PWA・ベスト記録・クリア演出）
-- [ ] Phase 3: 学習モード（ヒント機能・解法リプレイ・最適手数表示）
-  - `20260408-001-show-min-moves` — ゲーム画面に最適手数表示
-  - `20260408-002-solver-web-worker` — Solver の Web Worker 化
-  - `20260408-003-hint-feature` — ヒント機能
-  - `20260408-004-solution-replay` — 解法リプレイ
+- [x] Phase 3: 学習モード（ヒント機能・解法リプレイ・最適手数表示）
+  - `20260408-001-show-min-moves` — ゲーム画面に最適手数表示 ✅
+  - `20260408-002-solver-web-worker` — Solver の Web Worker 化 ✅
+  - `20260408-003-hint-feature` — ヒント機能 ✅
+  - `20260408-004-solution-replay` — 解法リプレイ ✅
+  - `20260411-005-high-traffic-readiness` — 公開準備・高トラフィック対策 ✅
 - [ ] Phase 4: チャレンジ（星評価・タイマー・統計）
 - [ ] Phase 5: コンテンツ拡充（50問以上・章立て・カスタムパズル）
 
